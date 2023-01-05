@@ -231,14 +231,14 @@ class BiliUser:
             (await self.api.wearMedal(self.initialMedal['medal_id'])) if self.config['WEARMEDAL'] else ...
         self.log.log("SUCCESS", "弹幕打卡任务完成")
         self.message.append(f"【{self.name}】 弹幕打卡任务完成 {n}/{len(self.medals)}")
-        # if n >= 5:
-        #     try:
-        #         await self.api.getOneBattery()
-        #         self.log.log("SUCCESS", "领取电池成功")
-        #         self.message.append(f"【{self.name}】 领取电池成功")
-        #     except Exception as e:
-        #         self.log.log("ERROR", "领取电池失败: {}".format(e))
-        #         self.errmsg.append(f"【{self.name}】 领取电池失败: {str(e)}")
+        if n >= 5:
+            try:
+                await self.api.getOneBattery()
+                self.log.log("SUCCESS", "领取电池成功")
+                self.message.append(f"【{self.name}】 领取电池成功")
+            except Exception as e:
+                self.log.log("ERROR", "领取电池失败: {}".format(e))
+                self.errmsg.append(f"【{self.name}】 领取电池失败: {str(e)}")
 
     async def init(self):
         if not await self.loginVerify():
@@ -261,8 +261,6 @@ class BiliUser:
             tasks.append(self.sendDanmaku())
             tasks.append(self.signInGroups())
             await asyncio.gather(*tasks)
-            await self.vote_a_soul()  # 谢谢为A-SOUL投票, 不想投的注释这行
-        # await self.session.close()
 
     async def sendmsg(self):
         if not self.isLogin:
@@ -360,14 +358,3 @@ class BiliUser:
             self.log.exception(e)
             self.log.log("ERROR", "应援团签到任务失败: " + str(e))
             self.errmsg.append("应援团签到任务失败: " + str(e))
-
-    async def vote_a_soul(self):
-        as_ = [672328094, 672342685, 672346917, 672353429]
-        for i in as_:
-            try:
-                await self.api.vup_vote(i)
-            except Exception as e:
-                self.log.log("ERROR", f"2022年度虚拟主播投票失败: {e}")
-                continue
-            await asyncio.sleep(1)
-        self.log.log("SUCCESS", "2022年度虚拟主播投票任务完成，感谢为A-SOUL投票!")
