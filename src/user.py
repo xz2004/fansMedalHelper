@@ -33,7 +33,7 @@ class BiliUser:
         self.medals = []  # 用户所有勋章
         self.medalsNeedDo = []  # 用户所有勋章，等级小于20的 未满1500的
 
-        self.session = ClientSession(timeout=ClientTimeout(total=3))
+        self.session = ClientSession(timeout=ClientTimeout(total=3), trust_env = True)
         self.api = BiliApi(self, self.session)
 
         self.retryTimes = 0  # 点赞任务重试次数
@@ -177,7 +177,7 @@ class BiliUser:
                 for index, medal in enumerate(failedMedals):
                     tasks = []
                     tasks.append(
-                        self.api.likeInteractV3(medal['room_info']['room_id'], medal['medal']['target_id'])
+                        self.api.likeInteractV3(medal['room_info']['room_id'], medal['medal']['target_id'],self.mid)
                     ) if self.config['LIKE_CD'] else ...
                     await asyncio.gather(*tasks)
                     self.log.log(
@@ -190,7 +190,7 @@ class BiliUser:
                 allTasks = []
                 for medal in failedMedals:
                     allTasks.append(
-                        self.api.likeInteractV3(medal['room_info']['room_id'], medal['medal']['target_id'])
+                        self.api.likeInteractV3(medal['room_info']['room_id'], medal['medal']['target_id'],self.mid)
                     ) if self.config['LIKE_CD'] else ...
                 await asyncio.gather(*allTasks)
             await asyncio.sleep(10)
